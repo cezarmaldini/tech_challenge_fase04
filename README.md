@@ -1,103 +1,173 @@
-# 📊 Tech Challenge | Fase 4
+# 🧠 Tech Challenge | Fase 4 - Modelo Preditivo dos Níveis de Obesidade
 
-Este projeto foi desenvolvido como parte do **Tech Challenge - Fase 4** da Pós-Tech em Engenharia de Dados, com o objetivo de transformar os dados da **PNAD COVID-19**, disponibilizados pelo IBGE, em informações acessíveis e relevantes para a tomada de decisão em saúde pública.
+Projeto desenvolvido como parte da Fase 4 da PÓS TECH em Data Analytics, com o objetivo de aplicar técnicas de ciência de dados e machine learning para prever níveis de obesidade, apoiando equipes médicas em diagnósticos preventivos.
+
+
+## 📌 Contextualização do Problema
+
+O desafio proposto consiste em atuar como cientista de dados de um hospital para desenvolver um sistema preditivo capaz de estimar o **nível de obesidade** de um paciente com base em características pessoais, hábitos alimentares e estilo de vida.
+
+
+## 🔎 Análise Exploratória
+
+A análise exploratória foi conduzida no **Microsoft Fabric** através do notebook [`nb_analise_exploratoria.ipynb`](./nb_analise_exploratoria.ipynb).
+
+Principais pontos abordados:
+- Distribuição das variáveis categóricas e numéricas
+- Correlações entre variáveis
+- Transformações aplicadas para normalização e codificação
+
+A análise permitiu compreender os padrões entre os fatores de risco e os níveis de obesidade, além de direcionar quais variáveis utilizar para treinamento do modelo.
 
 ---
 
-## 🔍 1. Contextualização do Problema
+## 🤖 Treinamento do Modelo Preditivo
 
-Durante a pandemia de COVID-19, compreender o comportamento da população, os sintomas clínicos mais comuns e os impactos sociais e econômicos tornou-se uma prioridade para instituições de saúde.
+O treinamento do modelo foi feito também no **Microsoft Fabric**, utilizando o notebook [`nb_modelo_preditivo.ipynb`](./nb_modelo_preditivo.ipynb).
 
-O IBGE disponibilizou a pesquisa **PNAD COVID-19**, com dados valiosos, porém brutos e descentralizados.
+### Algoritmo Utilizado:
+- **RandomForestClassifier**
 
-Este projeto simula a contratação de um **Especialista em Data Analytics** por um hospital para:
+### Métricas de Desempenho:
+```text
+Acurácia: 0.9196
 
-- Analisar o comportamento populacional durante a pandemia.
-- Identificar indicadores úteis para ações em futuros surtos.
+              precision    recall  f1-score   support
 
----
+  Obesidade Grau I       0.96      0.96      0.96        70
+ Obesidade Grau II       0.98      1.00      0.99        60
+Obesidade Grau III       1.00      1.00      1.00        65
+ Peso Insuficiente       0.88      0.93      0.90        54
+       Peso Normal       0.81      0.81      0.81        58
+ Sobrepeso Nível I       0.89      0.86      0.88        58
+Sobrepeso Nível II       0.89      0.86      0.88        58
 
-## 🧩 2. Solução
+   Accuracy                          0.92       423
+  Macro avg        0.92      0.92      0.92       423
+Weighted avg       0.92      0.92      0.92       423
 
-Foi desenvolvida uma **arquitetura moderna de dados e analytics**, capaz de:
+```
 
-- Organizar e transformar dados brutos em camadas (Bronze, Silver, Gold) no **Microsoft Fabric**.
-- Oferecer uma **interface interativa** via **Streamlit**.
-- Fornecer insights sobre sintomas, renda, escolaridade, raça/cor e outros aspectos.
+## 🌐 Aplicação com Streamlit
 
-### Arquitetura da Solução
+A aplicação foi desenvolvida com **Streamlit**, e o código principal encontra-se em [`app.py`](./app.py).
 
-![Arquitetura da Solução](https://i.ibb.co/rKLb4C7G/Planejamento-de-Sprint-Quadro-1.jpg)
+### Funcionalidades
 
-### Questionamentos Utilizados (Exemplos)
+#### 📊 Dashboard Analítico
+- Métricas gerais e distribuição dos níveis de obesidade
+- Análises interativas de:
+  - Gênero
+  - Histórico familiar de obesidade
+  - Hábito de fumar
+  - Consumo de alimentos calóricos
+- Comportamentos:
+  - Comer entre refeições
+  - Consumo de álcool
+  - Meio de transporte utilizado
+- Correlações:
+  - Nível de obesidade por gênero
+  - Histórico familiar por obesidade
+  - Faixa etária e prática de atividades físicas
 
-- `A002` – Idade do morador  
-- `A003` – Sexo  
-- `A004` – Cor ou raça  
-- `B009B/D/F` – Resultados de exames (SWAB, sangue dedo, sangue veia)  
-- `C007C`, `C01011` – Trabalho e faixa de rendimento  
-- `D0031`, `D0051` – Programas sociais  
-- `F001`, `F0022` – Dados de moradia  
+As visualizações utilizam **Plotly** com gráficos de barras, pizza e linhas interativas, organizadas com layout responsivo via Streamlit.
 
-### Meses Analisados
+#### 🧪 Previsão com Modelo Preditivo
+- Formulário para entrada de dados de pacientes
+  - Gênero, idade, peso
+  - Hábitos alimentares e estilo de vida
+- Resultado previsto:
+  - Nível de obesidade (7 possíveis categorias)
+  - Mensagem orientativa com base no resultado
+- Modelo treinado previamente e carregado no início da aplicação
 
-Setembro, Outubro e Novembro de 2020
+O objetivo da aplicação é **suportar decisões médicas** com base em dados, oferecendo uma **visão analítica completa** e **previsões personalizadas** para cada paciente.
 
 ### Acesse a Solução:
-🔗 [tech-challenge-fase3.onrender.com](https://tech-challenge-fase3.onrender.com)
+🔗 [tech-challenge-fase3.onrender.com](https://tech-challenge-fase04.onrender.com)
+
+## 🛢 Banco de Dados
+
+- Os dados utilizados na aplicação foram **persistidos em um banco de dados PostgreSQL**, permitindo:
+  - Armazenamento estruturado e seguro
+  - Integração direta com o modelo preditivo para previsões em tempo real
+  - Possibilidade de expansão futura da base com novos dados clínicos
 
 ---
 
-## 🔄 3. Pipeline de Dados
+## 🚀 Deploy
 
-O pipeline segue a arquitetura **medalhão** e foi implementado no **Microsoft Fabric**:
+A aplicação foi **containerizada com Docker** e publicada na nuvem utilizando a plataforma **Render Cloud**, garantindo:
 
-| Camada | Descrição | Notebook |
-|--------|-----------|----------|
-| 🥉 Bronze | Dados brutos (CSV) carregados no Lakehouse. | – |
-| 🥈 Silver | Limpeza, renomeação de colunas, padronização de formatos. | `nb_dados_silver.ipynb`, `nb_dicionarios_silver.ipynb` |
-| 🥇 Gold | Agregações, joins, categorização e transformação para analytics. | `nb_dados_gold.ipynb` |
-
-### Visualizações das Camadas
-
-#### Bronze
-
-![Dicionários](https://i.ibb.co/XTGMMRp/dict.png)
-![Dados](https://i.ibb.co/NgGTKH5W/dados-pnad.png)
-
-#### Silver
-
-| `nb_dicionarios_silver.ipynb` | `nb_dados_silver.ipynb` |
-|-------------------------------|---------------------------|
-| ![Silver 1](https://i.ibb.co/4w9bsKv1/Planejamento-de-Sprint-Quadro-2.jpg) | ![Silver 2](https://i.ibb.co/twKtK800/Planejamento-de-Sprint-Quadro-3.jpg) |
-
-#### Gold
-
-| `nb_dados_gold.ipynb` |
-|------------------------|
-| ![Gold](https://i.ibb.co/mV8B6HVt/Planejamento-de-Sprint-Quadro-4.jpg) |
+- Deploy automatizado e escalável
+- Ambiente isolado e replicável para produção
+- Facilidade de atualização contínua
 
 ---
 
-## 📈 4. Analytics
+## 🧰 Tecnologias Utilizadas
 
-Interface desenvolvida com **Streamlit**:
+| Categoria           | Ferramenta/Ferramentas                      |
+|---------------------|---------------------------------------------|
+| Linguagem           | Python 3.11                                 |
+| Ambiente Notebook   | Microsoft Fabric                            |
+| Machine Learning    | scikit-learn, pandas, numpy                 |
+| Visualização        | Plotly, Streamlit                           |
+| Dashboard Interativo| Streamlit + Plotly                          |
+| Banco de Dados      | PostgreSQL                                  |
+| Deploy              | Docker, Render Cloud                        |
+| Gerenciador de Pacotes | pip, requirements.txt                    |
 
-- Dashboards por **estado e período**
-- Filtros por **mês, estado e tipo de exame**
-- Análises por **sexo, faixa etária, cor/raça, escolaridade e renda**
-- Visualizações: **gráficos de barras, roscas e mapas interativos**
+## 📦 Arquivo `requirements.txt`
 
----
+Abaixo estão listadas todas as dependências utilizadas no projeto, e que devem ser instaladas para o correto funcionamento da aplicação:
 
-## 🛠️ 5. Tecnologias Utilizadas
+```
+streamlit
+streamlit-option-menu
+pandas
+plotly
+python-dotenv
+sqlalchemy
+psycopg2-binary
+scikit-learn
+```
 
-| Tecnologia | Uso |
-|------------|-----|
-| **Microsoft Fabric** | Lakehouse, Notebooks, Delta/Parquet |
-| **PySpark** | Processamento de dados |
-| **SQL** | Consultas de análise |
-| **Streamlit** | Interface Web |
-| **Plotly** | Visualizações interativas |
-| **GitHub** | Versionamento e CI/CD |
-| **Render** | Hospedagem da aplicação |
+Você pode instalar todas com o comando:
+```
+pip install -r requirements.txt
+```
+
+## 🐳 Dockerfile
+
+O projeto está preparado para ser executado em um container Docker. O arquivo Dockerfile contém a seguinte configuração:
+
+```
+# Imagem base oficial do Python
+FROM python:3.11
+
+# Define o diretório de trabalho no container
+WORKDIR /app
+
+# Copia os arquivos da aplicação para o container
+COPY . /app
+
+# Instala dependências
+RUN pip install --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+# Expõe a porta usada pelo Streamlit
+EXPOSE 8501
+
+# Comando para rodar a aplicação Streamlit
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+```
+
+## ⭐ Contribua com o Projeto
+
+Se você gostou deste projeto e ele foi útil de alguma forma, considere deixar uma estrela ⭐ no repositório para apoiar o trabalho!
+
+
+Desenvolvido por:
+👨‍💻 Cézar Maldini Rocha Almeida
+
