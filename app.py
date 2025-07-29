@@ -7,7 +7,11 @@ from plotly.subplots import make_subplots
 
 from modelo import treinar_modelo
 
-from queries import metricas_gerais, distribuicao_obesidade, obter_genero, obter_historico_familiar, obter_fumantes, obter_favc, metricas_caec, metricas_calc, metricas_mtrans
+from queries import (
+    metricas_gerais, distribuicao_obesidade, obter_genero, obter_historico_familiar,
+    obter_fumantes, obter_favc, metricas_caec, metricas_calc, metricas_mtrans,
+    distribuicao_genero_por_obesidade, media_faf_por_nivel_obesidade
+)
 
 @st.cache_resource
 def carregar_modelo():
@@ -28,19 +32,14 @@ st.set_page_config(
 with st.sidebar:
     option = option_menu(
         menu_title="Navegação",
-        options=["Home", "Dashboard", "Modelo Preditivo"],
-        icons=["house", "bar-chart", "graph-up-arrow"],
+        options=["Dashboard", "Modelo Preditivo"],
+        icons=["bar-chart", "graph-up-arrow"],
         menu_icon="card-list",
         default_index=0
     )
 # ===========================================================
-# Página Inicial
-if option == 'Home':
-    st.title('Comece por aqui')
-
-# ===========================================================
 # Página Dashboard
-elif option == 'Dashboard':
+if option == 'Dashboard':
     st.title('📊 Dashboard')
     st.divider()
     
@@ -113,16 +112,18 @@ elif option == 'Dashboard':
                         name='Fuma?', hole=0.4, rotation=45,
                         textinfo='percent+label'),
                 row=1, col=3)
-    
+        
     fig.add_trace(go.Pie(labels=df_favc['FAVC'],
-                        values=df_favc['Quantidade'],
-                        name='FAVC', hole=0.4, rotation=45,
-                        textinfo='percent+label'),
+                            values=df_favc['Quantidade'],
+                            name='FAVC', hole=0.4, rotation=45,
+                            textinfo='percent+label'),
                 row=1, col=4)
 
     fig.update_layout(height=400, showlegend=False)
 
     st.plotly_chart(fig, use_container_width=True)
+
+    st.divider()
 
     # ====================================================
     # Análises Comportamentais
@@ -135,13 +136,49 @@ elif option == 'Dashboard':
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.plotly_chart(px.bar(df_caec, x='categoria', y='quantidade', title='CAEC - Comer entre as refeições', color_discrete_sequence=['#636EFA']), use_container_width=True)
+        st.plotly_chart(px.bar(df_caec, x='categoria', y='quantidade', title='Comer entre as refeições', color_discrete_sequence=['#636EFA']), use_container_width=True)
 
     with col2:
-        st.plotly_chart(px.bar(df_calc, x='categoria', y='quantidade', title='CALC - Frequência de álcool', color_discrete_sequence=['#EF553B']), use_container_width=True)
+        st.plotly_chart(px.bar(df_calc, x='categoria', y='quantidade', title='Frequência do consumo de álcool', color_discrete_sequence=['#EF553B']), use_container_width=True)
 
     with col3:
-        st.plotly_chart(px.bar(df_mtrans, x='categoria', y='quantidade', title='MTRANS - Meio de transporte', color_discrete_sequence=['#00CC96']), use_container_width=True)                                                
+        st.plotly_chart(px.bar(df_mtrans, x='categoria', y='quantidade', title='Meio de Transporte utilizado', color_discrete_sequence=['#00CC96']), use_container_width=True)
+
+    st.divider()
+    # ====================================================
+    # Análises por Níveis de Obesidade
+    st.subheader('Análises por Níveis de Obesidade')
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        df_genero_obesidade = distribuicao_genero_por_obesidade()
+        df_pivot = df_genero_obesidade.pivot(index='Nivel_Obesidade', columns='Genero', values='quantidade').fillna(0)
+
+        fig = px.bar(
+            df_pivot,
+            orientation='h',
+            barmode='stack',
+            title='Distribuição de Gênero por Nível de Obesidade',
+            labels={'value': 'Quantidade', 'Nivel_Obesidade': 'Nível de Obesidade'},
+            color_discrete_sequence=px.colors.qualitative.Plotly
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
+
+    with col2:
+        df = media_faf_por_nivel_obesidade()
+
+        fig = px.bar(
+            df,
+            x="media_faf",
+            y="Nivel_Obesidade",
+            orientation="h",
+            color="Nivel_Obesidade",
+            title="Prática de exercício físico por Nível de Obesidade"
+        )
+        fig.update_layout(showlegend=False)
+        st.plotly_chart(fig)                                               
 
 # ===========================================================
 # Modelo Preditivo

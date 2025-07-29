@@ -92,3 +92,29 @@ def metricas_mtrans():
     """
     engine = get_engine()
     return pd.read_sql(query, con=engine)
+
+def distribuicao_genero_por_obesidade():
+    query = """
+        SELECT
+            "Nivel_Obesidade",
+            "Genero",
+            COUNT(*) AS quantidade
+        FROM obesity
+        GROUP BY "Nivel_Obesidade", "Genero"
+        ORDER BY "Nivel_Obesidade", "Genero"
+    """
+    engine = get_engine()
+    return pd.read_sql(query, con=engine)
+
+def media_faf_por_nivel_obesidade():
+    query = """
+        SELECT
+            "Nivel_Obesidade",
+            AVG("FAF"::FLOAT) AS media_faf
+        FROM obesity
+        WHERE "FAF" IS NOT NULL
+        GROUP BY "Nivel_Obesidade"
+        ORDER BY media_faf DESC
+    """
+    engine = get_engine()
+    return pd.read_sql(query, con=engine)
