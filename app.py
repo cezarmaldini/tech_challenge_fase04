@@ -277,11 +277,12 @@ elif option == 'Modelo Preditivo':
 
         with col1:
             genero = st.selectbox("Gênero", ["Masculino", "Feminino"])
-            peso = st.number_input("Peso (kg)", min_value=30.0, max_value=500.0, value=70.0)
+            idade = st.number_input("Idade", min_value=0.0, max_value=500.0, value=20.0)
+            peso = st.number_input("Peso (kg)", min_value=5.0, max_value=500.0, value=70.0)
             historico_familiar = st.selectbox("Histórico familiar de obesidade", ["Sim", "Não"])
             favc = st.selectbox("Consome alimentos calóricos com frequência?", ["Sim", "Não"])
-            caec = st.selectbox("Come entre as refeições?", ["Às vezes", "Frequentemente", "Sempre", "Não"])
         with col2:
+            caec = st.selectbox("Come entre as refeições?", ["Às vezes", "Frequentemente", "Sempre", "Não"])
             scc = st.selectbox("Monitora calorias?", ["Sim", "Não"])
             faf = st.slider("Frequência de atividade física", 0.0, 3.0, 1.0)
             calc = st.selectbox("Com que frequência consome álcool?", ["Às vezes", "Frequentemente", "Sempre", "Não"])
@@ -290,6 +291,7 @@ elif option == 'Modelo Preditivo':
     if st.button("🧪 Realizar Previsão"):
         entrada = pd.DataFrame([{
             'Genero': genero,
+            'Idade': idade,
             'Peso': peso,
             'Historico_Familiar': historico_familiar,
             'FAVC': favc,
