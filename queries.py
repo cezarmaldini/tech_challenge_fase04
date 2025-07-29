@@ -118,3 +118,35 @@ def media_faf_por_nivel_obesidade():
     """
     engine = get_engine()
     return pd.read_sql(query, con=engine)
+
+def casos_por_obesidade_e_hist_fam():
+    query = """
+        SELECT
+            "Nivel_Obesidade",
+            "Historico_Familiar",
+            COUNT(*) AS total_casos
+        FROM obesity
+        WHERE "Nivel_Obesidade" IS NOT NULL AND "Historico_Familiar" IS NOT NULL
+        GROUP BY "Nivel_Obesidade", "Historico_Familiar"
+        ORDER BY "Nivel_Obesidade"
+    """
+    engine = get_engine()
+    return pd.read_sql(query, con=engine)
+
+def obesidade_faixa_etaria():
+    query = """
+        SELECT 
+            "Nivel_Obesidade",
+            CASE 
+                WHEN "Idade" < 18 THEN 'Menor de 18'
+                WHEN "Idade" BETWEEN 18 AND 29 THEN '18-30'
+                WHEN "Idade" BETWEEN 30 AND 39 THEN '31-40'
+                WHEN "Idade" BETWEEN 40 AND 49 THEN '41-50'
+                ELSE '50+'
+            END AS "Faixa_Etaria",
+            COUNT(*) AS total_casos
+        FROM obesity
+        GROUP BY "Nivel_Obesidade", "Faixa_Etaria"
+    """
+    engine = get_engine()
+    return pd.read_sql(query, con=engine)

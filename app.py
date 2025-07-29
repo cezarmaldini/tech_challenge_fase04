@@ -10,7 +10,8 @@ from modelo import treinar_modelo
 from queries import (
     metricas_gerais, distribuicao_obesidade, obter_genero, obter_historico_familiar,
     obter_fumantes, obter_favc, metricas_caec, metricas_calc, metricas_mtrans,
-    distribuicao_genero_por_obesidade, media_faf_por_nivel_obesidade
+    distribuicao_genero_por_obesidade, media_faf_por_nivel_obesidade, casos_por_obesidade_e_hist_fam,
+    obesidade_faixa_etaria
 )
 
 @st.cache_resource
@@ -42,7 +43,7 @@ with st.sidebar:
 if option == 'Dashboard':
     st.title('📊 Dashboard')
     st.divider()
-    
+
     # =======================================================
     # Métricas Gerais
     st.subheader('Métricas Gerais')
@@ -64,12 +65,13 @@ if option == 'Dashboard':
         y='count',
         title='Distribuição dos Níveis de Obesidade',
         text='count',
-        color='Nivel_Obesidade'
+        color='Nivel_Obesidade',
+        labels={'Nivel_Obesidade': 'Nível de Obesidade', 'count': 'Quantidade'}
     )
 
     fig.update_layout(
         xaxis_title='Nível de Obesidade',
-        yaxis_title='Contagem',
+        yaxis_title='Quantidade',
         xaxis_tickangle=-45
     )
 
@@ -136,13 +138,37 @@ if option == 'Dashboard':
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.plotly_chart(px.bar(df_caec, x='categoria', y='quantidade', title='Comer entre as refeições', color_discrete_sequence=['#636EFA']), use_container_width=True)
+        st.plotly_chart(
+            px.bar(df_caec,
+                   x='categoria',
+                   y='quantidade',
+                   title='Comer entre as refeições',
+                   color_discrete_sequence=['#636EFA'],
+                   labels={'categoria': 'Categoria', 'quantidade': 'Quantidade'},
+                   text_auto='.f'
+                ), use_container_width=True)
 
     with col2:
-        st.plotly_chart(px.bar(df_calc, x='categoria', y='quantidade', title='Frequência do consumo de álcool', color_discrete_sequence=['#EF553B']), use_container_width=True)
+        st.plotly_chart(
+            px.bar(df_calc,
+                   x='categoria',
+                   y='quantidade',
+                   title='Frequência do consumo de álcool',
+                   color_discrete_sequence=['#EF553B'],
+                   labels={'categoria': 'Categoria', 'quantidade': 'Quantidade'},
+                   text_auto='.f'
+                ), use_container_width=True)
 
     with col3:
-        st.plotly_chart(px.bar(df_mtrans, x='categoria', y='quantidade', title='Meio de Transporte utilizado', color_discrete_sequence=['#00CC96']), use_container_width=True)
+        st.plotly_chart(
+            px.bar(df_mtrans,
+                   x='categoria',
+                   y='quantidade',
+                   title='Meio de Transporte utilizado',
+                   color_discrete_sequence=['#00CC96'],
+                   labels={'categoria': 'Categoria', 'quantidade': 'Quantidade'},
+                   text_auto='.f'
+                ), use_container_width=True)
 
     st.divider()
     # ====================================================
@@ -161,10 +187,37 @@ if option == 'Dashboard':
             barmode='stack',
             title='Distribuição de Gênero por Nível de Obesidade',
             labels={'value': 'Quantidade', 'Nivel_Obesidade': 'Nível de Obesidade'},
+            text_auto='.f',
             color_discrete_sequence=px.colors.qualitative.Plotly
         )
 
         st.plotly_chart(fig, use_container_width=True)
+
+        df = casos_por_obesidade_e_hist_fam()
+
+        ordem = [
+            'Peso Insuficiente',
+            'Peso Normal',
+            'Sobrepeso Nível I',
+            'Sobrepeso Nível II',
+            'Obesidade Grau I',
+            'Obesidade Grau II',
+            'Obesidade Grau III'
+        ]
+
+        df["Nivel_Obesidade"] = pd.Categorical(df["Nivel_Obesidade"], categories=ordem, ordered=True)
+        df = df.sort_values("Nivel_Obesidade")
+
+        fig = px.line(
+            df,
+            x="Nivel_Obesidade",
+            y="total_casos",
+            color="Historico_Familiar",
+            markers=True,
+            title="Total de Casos por Nível de Obesidade e Histórico Familiar",
+            labels={'total_casos': 'Quantidade', 'Nivel_Obesidade': 'Nível de Obesidade', 'Historico_Familiar': 'Histórico Familiar'}
+        )
+        st.plotly_chart(fig)
 
     with col2:
         df = media_faf_por_nivel_obesidade()
@@ -175,10 +228,33 @@ if option == 'Dashboard':
             y="Nivel_Obesidade",
             orientation="h",
             color="Nivel_Obesidade",
-            title="Prática de exercício físico por Nível de Obesidade"
+            title="Prática de exercício físico por Nível de Obesidade",
+            labels={'media_faf': 'Média Prática de Exercícios', 'Nivel_Obesidade': 'Nível de Obesidade'},
+            text_auto='.2f'
         )
         fig.update_layout(showlegend=False)
-        st.plotly_chart(fig)                                               
+        st.plotly_chart(fig)
+
+        df = obesidade_faixa_etaria()
+
+        ordem = [
+            'Menor de 18', '18-30', '31-40',
+            '41-50', '50+'
+        ]
+        df["Faixa_Etaria"] = pd.Categorical(df["Faixa_Etaria"], categories=ordem, ordered=True)
+        df = df.sort_values("Faixa_Etaria")
+
+        fig = px.bar(
+            df,
+            x="Faixa_Etaria",
+            y="total_casos",
+            color="Nivel_Obesidade",
+            barmode="group",
+            title="Casos por Nível de Obesidade e Faixa Etária",
+            labels={'Faixa_Etaria': 'Faixa Etária', 'Nivel_Obesidade': 'Nível de Obesidade', 'total_casos': 'Quantidade'}
+        )
+
+        st.plotly_chart(fig, use_container_width=True)                                            
 
 # ===========================================================
 # Modelo Preditivo

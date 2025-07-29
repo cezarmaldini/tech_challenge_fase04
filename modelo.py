@@ -18,7 +18,7 @@ def treinar_modelo():
     # Leitura da tabela
     df = pd.read_sql_query("""
         SELECT "Genero", "Peso", "Historico_Familiar", "FAVC", "CAEC",
-            "SCC", "FAF", "CALC", "MTRANS", "Nivel_Obesidade"
+        "SCC", "FAF", "CALC", "MTRANS", "Nivel_Obesidade"
         FROM obesity
     """, con=engine)
 
